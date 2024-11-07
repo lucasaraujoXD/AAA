@@ -4,24 +4,29 @@ import styled from 'styled-components';
 import axios from 'axios';
 
 const Container = styled.div`
-  width: 400px;
-  margin: auto;
+  width: 400px;  /* Largura fixa do container */
+  margin: auto;  /* Centraliza o container na tela */
   padding: 20px;
   background-color: ${({ theme }) => theme.body};
   color: ${({ theme }) => theme.text};
   border-radius: 10px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
   text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;  /* Centraliza os itens horizontalmente */
 `;
 
 const Input = styled.input`
-  width: 100%;
+  width: 80%;  /* Largura dos campos de input será de 80% do container */
   margin: 10px 0;
   padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
 `;
 
 const Button = styled.button`
-  width: 100%;
+  width: 80%;  /* Largura dos botões será de 80% do container */
   padding: 10px;
   background-color: #ffcc00; /* Amarelo forte */
   color: #000;
@@ -39,9 +44,11 @@ const Logo = styled.img`
 `;
 
 const RoleSelect = styled.select`
-  width: 100%;
+  width: 80%;  /* Largura da seleção de cargo será de 80% do container */
   margin: 10px 0;
   padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
 `;
 
 const Login = () => {

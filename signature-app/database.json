@@ -41,6 +41,12 @@
       "re": "cesar@paranoa.com.br",
       "password": "123",
       "role": "engenharia"
+    },
+    {
+      "id": "e72e",
+      "re": "gabrielcaetano",
+      "password": "123",
+      "role": "engenharia"
     }
   ],
   "signatures": [
