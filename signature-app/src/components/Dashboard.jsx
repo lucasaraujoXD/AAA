@@ -9,10 +9,10 @@ const Container = styled.div`
   position: relative;
   display: flex;
   flex-direction: column;
-  width: 100%; /* Garante que a largura total da tela seja utilizada */
-  box-sizing: border-box; /* Inclui o padding na largura total para evitar overflow */
-
-  /* Ajuste de responsividade */
+  width: 100%;
+  box-sizing: border-box;
+  
+  /* Responsividade */
   @media (min-width: 768px) {
     flex-direction: row;
   }
@@ -21,13 +21,17 @@ const Container = styled.div`
 const Content = styled.div`
   flex: 1;
   margin-left: 60px;
-  max-width: 100%; /* Garante que o conteúdo não ultrapasse a largura da tela */
-  box-sizing: border-box; /* Inclui o padding na largura total */
+  max-width: 100%;
+  box-sizing: border-box;
 
-  /* Ajuste de margens em dispositivos móveis */
   @media (max-width: 768px) {
     margin-left: 0;
-    padding: 10px; /* Adiciona um pequeno padding para dispositivos móveis */
+    padding: 10px;
+  }
+
+  h2 {
+    font-size: 1.8rem;
+    margin-bottom: 20px;
   }
 `;
 

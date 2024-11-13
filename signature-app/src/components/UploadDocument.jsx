@@ -12,12 +12,16 @@ const Container = styled.div`
   color: ${({ theme }) => theme.text};
   border-radius: 10px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  
+  @media (max-width: 768px) {
+    padding: 10px; /* Menos padding em telas pequenas */
+  }
 `;
 
 const Input = styled.input`
   margin-bottom: 10px;
   padding: 10px;
-  width: 100%;
+  width: 100%; /* Garante que o input ocupe a largura total da tela */
 `;
 
 const Button = styled.button`
@@ -28,8 +32,14 @@ const Button = styled.button`
   border: none;
   border-radius: 4px;
   cursor: pointer;
+  width: 100%; /* Botões maiores em telas pequenas */
+  
   &:hover {
     background-color: #e6b800;
+  }
+
+  @media (max-width: 768px) {
+    width: auto; /* Desfaz o efeito de largura total em telas grandes */
   }
 `;
 
@@ -61,17 +71,14 @@ const UploadDocument = () => {
       const workbook = new ExcelJS.Workbook();
       await workbook.xlsx.load(data);
 
-      // Verifique se há planilhas no workbook
       if (workbook.worksheets.length === 0) {
-        alert('Nenhuma planilha encontrada no arquivo. Tente outro arquivo.');
+        alert('Nenhuma planilha encontrada no arquivo.');
         return;
       }
 
-      const worksheet = workbook.worksheets[0]; // Obtém a primeira planilha
+      const worksheet = workbook.worksheets[0];
 
-      // Verifique se há uma assinatura
       if (sigCanvas.current.getTrimmedCanvas()) {
-        // Obtenha a imagem da assinatura como buffer
         const imgData = sigCanvas.current.getTrimmedCanvas().toDataURL('image/png');
         const response = await fetch(imgData);
         const buffer = await response.arrayBuffer();
@@ -81,13 +88,11 @@ const UploadDocument = () => {
           extension: 'png',
         });
 
-        // Adiciona a imagem em uma posição específica na planilha
         worksheet.addImage(img, {
-          tl: { col: 0, row: worksheet.rowCount + 3 }, // Ajuste conforme necessário para a área de instrução de controle
+          tl: { col: 0, row: worksheet.rowCount + 3 },
           ext: { width: 150, height: 50 },
         });
 
-        // Cria um novo buffer para salvar o documento Excel atualizado
         const updatedBuffer = await workbook.xlsx.writeBuffer();
         const blob = new Blob([updatedBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
         saveAs(blob, 'DocumentoAssinado.xlsx');
@@ -97,7 +102,7 @@ const UploadDocument = () => {
       }
     } catch (error) {
       console.error('Erro ao salvar o documento:', error);
-      alert('Erro ao salvar o documento. Tente novamente.');
+      alert('Erro ao salvar o documento.');
     }
   };
 
@@ -106,7 +111,6 @@ const UploadDocument = () => {
       <h3>Selecionar Documento</h3>
       <Input type="file" accept=".xls,.xlsx" onChange={handleFileChange} />
       <ExcelViewerModal file={file} isOpen={showModal} onClose={() => setShowModal(false)} />
-
       <div>
         <h4>Assinatura do Responsável</h4>
         <SignatureCanvas ref={sigCanvas} canvasProps={{ width: 500, height: 200, className: 'sigCanvas' }} />
