@@ -17,7 +17,7 @@ const App = () => {
         <Routes>
           <Route path="/" element={<Login />} />
           <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/pending-documents" element={<PendingDocuments />} /> {/* Nova rota */}
+          <Route path="/pending-documents" element={<PendingDocuments />} /> 
         </Routes>
       </Router>
     </ThemeProvider>

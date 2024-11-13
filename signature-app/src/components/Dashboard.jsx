@@ -42,7 +42,7 @@ const Dashboard = () => {
     <Container>
       <Sidebar user={user} />
       <Content>
-        <h2>Dashboard</h2>
+        <h2>Assinatura Digital</h2>
         <UploadDocument />
       </Content>
     </Container>
