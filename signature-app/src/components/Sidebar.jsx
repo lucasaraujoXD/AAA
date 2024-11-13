@@ -1,3 +1,4 @@
+// src/components/Sidebar.jsx
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
@@ -15,6 +16,16 @@ const SidebarContainer = styled.div`
   flex-direction: column;
   align-items: center;
   padding-top: 20px;
+  transition: all 0.3s ease;
+
+  /* Media query para dispositivos móveis */
+  @media (max-width: 768px) {
+    width: 100%;
+    height: 60px;
+    flex-direction: row;
+    justify-content: space-around;
+    padding-top: 0;
+  }
 `;
 
 const LogoContainer = styled.div`
@@ -24,6 +35,11 @@ const LogoContainer = styled.div`
   justify-content: center;
   align-items: center;
   margin-bottom: 20px;
+
+  /* Ajuste para dispositivo móvel */
+  @media (max-width: 768px) {
+    margin-bottom: 0;
+  }
 `;
 
 const IconContainer = styled.div`
@@ -34,6 +50,11 @@ const IconContainer = styled.div`
 
   &:hover {
     color: #ffcc00;
+  }
+
+  /* Ajuste de margem para dispositivo móvel */
+  @media (max-width: 768px) {
+    margin: 0;
   }
 `;
 
@@ -52,13 +73,20 @@ const UserInfoPopup = styled.div`
   p {
     margin: 5px 0;
   }
+
+  /* Ajuste para dispositivo móvel */
+  @media (max-width: 768px) {
+    top: 70px;
+    left: 0;
+    right: 0;
+    width: 100%;
+  }
 `;
 
 const Sidebar = () => {
   const [isPopupVisible, setIsPopupVisible] = useState(false);
   const navigate = useNavigate();
 
-  // Pega o usuário do localStorage
   const user = JSON.parse(localStorage.getItem('user'));
 
   const handleLogout = () => {
@@ -80,7 +108,6 @@ const Sidebar = () => {
         <FaUser />
       </IconContainer>
 
-      {/* Exibe o popup com nome e cargo do usuário */}
       {isPopupVisible && user && (
         <UserInfoPopup>
           <p><strong>Nome:</strong> {user.re}</p>
@@ -88,11 +115,11 @@ const Sidebar = () => {
         </UserInfoPopup>
       )}
 
-      <IconContainer>
+      <IconContainer onClick={() => navigate('/dashboard')}>
         <FaFileUpload title="Selecionar Documento" />
       </IconContainer>
 
-      <IconContainer>
+      <IconContainer onClick={() => navigate('/pending-documents')}>
         <FaClipboardList title="Documentos Pendentes" />
       </IconContainer>
 

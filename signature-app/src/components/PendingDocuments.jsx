@@ -2,23 +2,23 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import styled from 'styled-components';
+import Sidebar from './Sidebar';
 
-const Container = styled.div`
+const PageContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+
+  /* Altera para layout em linha em telas maiores */
+  @media (min-width: 768px) {
+    flex-direction: row;
+  }
+`;
+
+const ContentContainer = styled.div`
   padding: 20px;
+  flex: 1;
   background-color: ${({ theme }) => theme.body};
   color: ${({ theme }) => theme.text};
-  border-radius: 10px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-`;
-
-const DocumentList = styled.ul`
-  list-style-type: none;
-  padding: 0;
-`;
-
-const DocumentItem = styled.li`
-  padding: 10px;
-  border-bottom: 1px solid #ccc;
 `;
 
 const PendingDocuments = () => {
@@ -38,16 +38,17 @@ const PendingDocuments = () => {
   }, []);
 
   return (
-    <Container>
-      <h2>Documentos Pendentes</h2>
-      <DocumentList>
-        {documents.map((doc) => (
-          <DocumentItem key={doc.id}>
-            {doc.name} - {doc.status}
-          </DocumentItem>
-        ))}
-      </DocumentList>
-    </Container>
+    <PageContainer>
+      <Sidebar />
+      <ContentContainer>
+        <h2>Documentos Pendentes</h2>
+        <ul>
+          {documents.map((doc) => (
+            <li key={doc.id}>{doc.name} - {doc.status}</li>
+          ))}
+        </ul>
+      </ContentContainer>
+    </PageContainer>
   );
 };
 
