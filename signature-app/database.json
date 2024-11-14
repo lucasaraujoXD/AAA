@@ -17,6 +17,12 @@
       "re": "fgodoy",
       "password": "123",
       "role": "manufatura"
+    },
+    {
+      "id": "f202",
+      "re": "aaa",
+      "password": "123",
+      "role": "qualidade"
     }
   ],
   "signatures": [

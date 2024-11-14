@@ -1,10 +1,10 @@
+// UploadDocument.jsx
 import React, { useState, useRef } from 'react';
-import * as XLSX from 'xlsx';
+import * as ExcelJS from 'exceljs';
+import { saveAs } from 'file-saver';
+import styled from 'styled-components';
 import ExcelViewerModal from './ExcelViewerModal';
 import SignatureCanvas from 'react-signature-canvas';
-import styled from 'styled-components';
-import ExcelJS from 'exceljs';
-import { saveAs } from 'file-saver';
 
 const Container = styled.div`
   padding: 20px;
@@ -12,16 +12,12 @@ const Container = styled.div`
   color: ${({ theme }) => theme.text};
   border-radius: 10px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-  
-  @media (max-width: 768px) {
-    padding: 10px; /* Menos padding em telas pequenas */
-  }
 `;
 
 const Input = styled.input`
   margin-bottom: 10px;
   padding: 10px;
-  width: 100%; /* Garante que o input ocupe a largura total da tela */
+  width: 100%;
 `;
 
 const Button = styled.button`
@@ -32,14 +28,10 @@ const Button = styled.button`
   border: none;
   border-radius: 4px;
   cursor: pointer;
-  width: 100%; /* Botões maiores em telas pequenas */
-  
+  width: 100%;
+
   &:hover {
     background-color: #e6b800;
-  }
-
-  @media (max-width: 768px) {
-    width: auto; /* Desfaz o efeito de largura total em telas grandes */
   }
 `;
 

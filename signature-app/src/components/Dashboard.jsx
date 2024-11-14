@@ -1,4 +1,3 @@
-// src/components/Dashboard.jsx
 import React from 'react';
 import styled from 'styled-components';
 import UploadDocument from './UploadDocument';
@@ -11,7 +10,7 @@ const Container = styled.div`
   flex-direction: column;
   width: 100%;
   box-sizing: border-box;
-  
+
   /* Responsividade */
   @media (min-width: 768px) {
     flex-direction: row;
@@ -23,6 +22,8 @@ const Content = styled.div`
   margin-left: 60px;
   max-width: 100%;
   box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
 
   @media (max-width: 768px) {
     margin-left: 0;
@@ -43,6 +44,7 @@ const Dashboard = () => {
       <Sidebar user={user} />
       <Content>
         <h2>Assinatura Digital</h2>
+        {/* Agora o UploadDocument será exibido fixo no topo */}
         <UploadDocument />
       </Content>
     </Container>
