@@ -23,6 +23,12 @@
       "re": "aaa",
       "password": "123",
       "role": "qualidade"
+    },
+    {
+      "id": "ac59",
+      "re": "yaraujo@paranoa.com",
+      "password": "123",
+      "role": "qualidade"
     }
   ],
   "signatures": [
