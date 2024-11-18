@@ -30,7 +30,7 @@ const FormContainer = styled.div`
 `;
 
 const Input = styled.input`
-  width: 100%;
+  width: 95%;
   margin: 10px 0;
   padding: 12px;
   border: none;
@@ -39,7 +39,6 @@ const Input = styled.input`
   color: #fff;
   font-size: 16px;
   outline: none;
-
   ::placeholder {
     color: #ccc;
   }

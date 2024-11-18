@@ -1,5 +1,4 @@
-// UploadDocument.jsx
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import * as ExcelJS from 'exceljs';
 import { saveAs } from 'file-saver';
 import styled from 'styled-components';
@@ -39,6 +38,15 @@ const UploadDocument = () => {
   const [file, setFile] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const sigCanvas = useRef({});
+  const [userRole, setUserRole] = useState('');
+
+  // Obtém o cargo do usuário logado
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem('user'));
+    if (user && user.role) {
+      setUserRole(user.role);
+    }
+  }, []);
 
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
@@ -63,12 +71,25 @@ const UploadDocument = () => {
       const workbook = new ExcelJS.Workbook();
       await workbook.xlsx.load(data);
 
-      if (workbook.worksheets.length === 0) {
-        alert('Nenhuma planilha encontrada no arquivo.');
+      const worksheet = workbook.getWorksheet('INSTRUÇÃO CONTROLE');
+      if (!worksheet) {
+        alert('A planilha "instrução de controle" não foi encontrada no arquivo.');
         return;
       }
 
-      const worksheet = workbook.worksheets[0];
+      const lastRow = worksheet.lastRow;
+      if (!lastRow) {
+        alert('Nenhuma linha encontrada na planilha "instrução de controle".');
+        return;
+      }
+
+      const columnMapping = {
+        engenharia: 4,
+        manufatura: 18,
+        qualidade: 24,
+      };
+
+      const columnToPlaceSignature = columnMapping[userRole] || 4; // Padrão para engenharia
 
       if (sigCanvas.current.getTrimmedCanvas()) {
         const imgData = sigCanvas.current.getTrimmedCanvas().toDataURL('image/png');
@@ -80,8 +101,9 @@ const UploadDocument = () => {
           extension: 'png',
         });
 
+        const lastRowNumber = lastRow.number;
         worksheet.addImage(img, {
-          tl: { col: 0, row: worksheet.rowCount + 3 },
+          tl: { col: columnToPlaceSignature - 1, row: lastRowNumber - 2 },
           ext: { width: 150, height: 50 },
         });
 
@@ -104,7 +126,7 @@ const UploadDocument = () => {
       <Input type="file" accept=".xls,.xlsx" onChange={handleFileChange} />
       <ExcelViewerModal file={file} isOpen={showModal} onClose={() => setShowModal(false)} />
       <div>
-        <h4>Assinatura do Responsável</h4>
+        <h4>Assinatura do Responsável ({userRole})</h4>
         <SignatureCanvas ref={sigCanvas} canvasProps={{ width: 500, height: 200, className: 'sigCanvas' }} />
         <Button onClick={clearSignature}>Limpar Assinatura</Button>
         <Button onClick={saveWithSignature}>Salvar com Assinatura</Button>
