@@ -11,12 +11,56 @@ const Container = styled.div`
   color: ${({ theme }) => theme.text};
   border-radius: 10px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  max-width: 100%;
+  box-sizing: border-box;
+  text-align: center; /* Centraliza o conteúdo */
+
+  @media (max-width: 768px) {
+    padding: 10px;
+  }
 `;
 
-const Input = styled.input`
-  margin-bottom: 10px;
-  padding: 10px;
+const Title = styled.h3`
+  margin-bottom: 20px;
+`;
+
+const FileInputContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 10px;
   width: 100%;
+`;
+
+const FileInputLabel = styled.label`
+  padding: 10px;
+  background-color: #ffcc00;
+  color: #000;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  text-align: center;
+  width: 100%;
+
+  &:hover {
+    background-color: #e6b800;
+  }
+
+  @media (max-width: 768px) {
+    font-size: 0.9rem;
+    padding: 8px;
+  }
+`;
+
+const HiddenInput = styled.input`
+  display: none;
+`;
+
+const FileName = styled.p`
+  margin-top: 10px;
+  font-size: 0.9rem;
+  text-align: center;
+  word-break: break-word;
 `;
 
 const Button = styled.button`
@@ -32,15 +76,39 @@ const Button = styled.button`
   &:hover {
     background-color: #e6b800;
   }
+
+  @media (max-width: 768px) {
+    font-size: 0.9rem;
+    padding: 8px;
+  }
+`;
+
+const SignatureContainer = styled.div`
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+
+  canvas {
+    max-width: 100%;
+  }
+
+  @media (max-width: 768px) {
+    h4 {
+      font-size: 1rem;
+      text-align: center;
+    }
+  }
 `;
 
 const UploadDocument = () => {
   const [file, setFile] = useState(null);
+  const [fileName, setFileName] = useState('');
   const [showModal, setShowModal] = useState(false);
   const sigCanvas = useRef({});
   const [userRole, setUserRole] = useState('');
 
-  // Obtém o cargo do usuário logado
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem('user'));
     if (user && user.role) {
@@ -52,6 +120,7 @@ const UploadDocument = () => {
     const selectedFile = e.target.files[0];
     if (selectedFile && /\.(xls|xlsx)$/.test(selectedFile.name)) {
       setFile(selectedFile);
+      setFileName(selectedFile.name);
       setShowModal(true);
     } else {
       alert('Por favor, selecione um arquivo Excel (.xls ou .xlsx) válido.');
@@ -89,7 +158,7 @@ const UploadDocument = () => {
         qualidade: 24,
       };
 
-      const columnToPlaceSignature = columnMapping[userRole] || 4; // Padrão para engenharia
+      const columnToPlaceSignature = columnMapping[userRole] || 4;
 
       if (sigCanvas.current.getTrimmedCanvas()) {
         const imgData = sigCanvas.current.getTrimmedCanvas().toDataURL('image/png');
@@ -122,15 +191,22 @@ const UploadDocument = () => {
 
   return (
     <Container>
-      <h3>Selecionar Documento</h3>
-      <Input type="file" accept=".xls,.xlsx" onChange={handleFileChange} />
+  
+
+      <FileInputContainer>
+        <FileInputLabel>
+          Escolher Arquivo
+          <HiddenInput type="file" accept=".xls,.xlsx" onChange={handleFileChange} />
+        </FileInputLabel>
+        {fileName && <FileName>Arquivo selecionado: {fileName}</FileName>}
+      </FileInputContainer>
       <ExcelViewerModal file={file} isOpen={showModal} onClose={() => setShowModal(false)} />
-      <div>
+      <SignatureContainer>
         <h4>Assinatura do Responsável ({userRole})</h4>
         <SignatureCanvas ref={sigCanvas} canvasProps={{ width: 500, height: 200, className: 'sigCanvas' }} />
         <Button onClick={clearSignature}>Limpar Assinatura</Button>
         <Button onClick={saveWithSignature}>Salvar com Assinatura</Button>
-      </div>
+      </SignatureContainer>
     </Container>
   );
 };

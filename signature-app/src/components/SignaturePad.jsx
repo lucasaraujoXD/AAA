@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react';
+import styled from 'styled-components';
 import SignatureCanvas from 'react-signature-canvas';
 import axios from 'axios';
-import styled from 'styled-components';
 
 const SignatureWrapper = styled.div`
   display: flex;
@@ -23,14 +23,15 @@ const Button = styled.button`
   border: none;
   border-radius: 4px;
   cursor: pointer;
-  width: 100%; /* Botões mais largos em telas pequenas */
-  
+  width: 100%;
+
   &:hover {
     background-color: #e6b800;
   }
 
   @media (max-width: 768px) {
-    width: auto; /* Desfaz o efeito de largura total em telas grandes */
+    font-size: 0.8rem;
+    padding: 8px;
   }
 `;
 
@@ -48,17 +49,20 @@ const SignaturePad = () => {
       await axios.post('http://localhost:5000/signatures', { signature });
       alert('Assinatura salva com sucesso!');
     } catch (error) {
-      console.error('Save failed:', error);
+      console.error('Erro ao salvar:', error);
     }
   };
 
   return (
     <SignatureWrapper>
-      <h3>Assinatura do Responsável</h3>
-      <SignatureCanvas ref={sigCanvas} canvasProps={{ width: 500, height: 200, className: 'sigCanvas' }} />
+      <h3>Assinatura Digital</h3>
+      <SignatureCanvas
+        ref={sigCanvas}
+        canvasProps={{ width: 500, height: 200, className: 'sigCanvas' }}
+      />
       <Button onClick={clear}>Limpar</Button>
       <Button onClick={save}>Salvar Assinatura</Button>
-      {trimmedDataURL ? <img src={trimmedDataURL} alt="signature" /> : null}
+      {trimmedDataURL && <img src={trimmedDataURL} alt="Assinatura" />}
     </SignatureWrapper>
   );
 };

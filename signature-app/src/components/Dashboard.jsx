@@ -4,14 +4,12 @@ import UploadDocument from './UploadDocument';
 import Sidebar from './Sidebar';
 
 const Container = styled.div`
-  padding: 20px;
-  position: relative;
   display: flex;
   flex-direction: column;
+  padding: 20px;
   width: 100%;
   box-sizing: border-box;
 
-  /* Responsividade */
   @media (min-width: 768px) {
     flex-direction: row;
   }
@@ -20,10 +18,11 @@ const Container = styled.div`
 const Content = styled.div`
   flex: 1;
   margin-left: 60px;
-  max-width: 100%;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
+  align-items: center; /* Centraliza o conteúdo horizontalmente */
+  text-align: center; /* Centraliza o texto */
 
   @media (max-width: 768px) {
     margin-left: 0;
@@ -31,8 +30,12 @@ const Content = styled.div`
   }
 
   h2 {
-    font-size: 1.8rem;
+    font-size: 1.5rem;
     margin-bottom: 20px;
+
+    @media (max-width: 768px) {
+      font-size: 1.2rem;
+    }
   }
 `;
 
@@ -44,7 +47,6 @@ const Dashboard = () => {
       <Sidebar user={user} />
       <Content>
         <h2>Assinatura Digital</h2>
-        {/* Agora o UploadDocument será exibido fixo no topo */}
         <UploadDocument />
       </Content>
     </Container>
