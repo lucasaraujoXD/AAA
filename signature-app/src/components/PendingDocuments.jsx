@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import Sidebar from './Sidebar';
@@ -20,7 +19,7 @@ const ContentContainer = styled.div`
   flex: 1;
   background-color: ${({ theme }) => theme.body};
   color: ${({ theme }) => theme.text};
-  height: 100%;  /* Garantindo que ocupe toda a altura da tela */
+  height: 100%;
 
   h2 {
     text-align: center;
@@ -34,21 +33,21 @@ const ContentContainer = styled.div`
 
 const TableContainer = styled.div`
   width: 100%;
-  overflow-x: auto;  /* Permite rolagem horizontal quando necessário */
+  overflow-x: auto;
   margin-top: 20px;
 `;
 
 const Table = styled.table`
   width: 100%;
   border-collapse: collapse;
-  min-width: 600px;  /* Define a largura mínima da tabela */
+  min-width: 800px;
 
   th,
   td {
     padding: 15px;
     text-align: center;
     border: 1px solid ${({ theme }) => theme.text};
-    min-width: 200px; /* Aumenta a largura mínima das células para mais espaço */
+    min-width: 200px;
   }
 
   th {
@@ -68,6 +67,12 @@ const Table = styled.table`
     vertical-align: middle;
   }
 
+  .button-container {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+  }
+
   button {
     padding: 12px 20px;
     background-color: #ffcc00;
@@ -81,9 +86,9 @@ const Table = styled.table`
     }
   }
 
-  /* Responsividade para telas menores */
   @media (max-width: 768px) {
-    th, td {
+    th,
+    td {
       padding: 10px;
     }
 
@@ -94,29 +99,83 @@ const Table = styled.table`
   }
 `;
 
+const Popup = styled.div`
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #222;
+  color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  width: 90%;
+  max-width: 500px;
+
+  h3 {
+    margin-bottom: 15px;
+    text-align: center;
+  }
+
+  textarea {
+    width: 100%;
+    height: 150px; /* Aumenta a altura da caixa de texto */
+    margin-bottom: 20px;
+    padding: 10px;
+    background-color: #333;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    resize: none;
+    box-sizing: border-box;
+    font-size: 14px;
+  }
+
+  .button-container {
+    display: flex;
+    justify-content: center; /* Centraliza os botões */
+    gap: 20px; /* Adiciona espaçamento uniforme entre os botões */
+  }
+
+  button {
+    padding: 12px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    background-color: #ffc107; /* Cor amarela para ambos os botões */
+    color: #000;
+    
+
+    &:hover {
+      background-color: #e0a800; /* Cor de hover para ambos os botões */
+    }
+  }
+`;
+
+
+
 const PendingDocuments = () => {
   const [documents, setDocuments] = useState([]);
+  const [showPopup, setShowPopup] = useState(false);
+  const [rejectionReason, setRejectionReason] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchPendingDocuments = async () => {
-      try {
-        const simulatedDocuments = [
-          { id: 1, name: 'FTP001 - Teste de estanqueidade' },
-          { id: 2, name: 'FTP002 - Montagem de componentes' },
-          { id: 3, name: 'FTP003 - Injeção' },
-          { id: 4, name: 'FTP004 - Refile' },
-          { id: 5, name: 'FTP005 - Embalagem' },
-          { id: 6, name: 'FTP006 - Montagem de flexguard' },
-          { id: 7, name: 'FTP007 - Lavadora' },
-          { id: 8, name: 'FTP008 - Kneader' },
-          { id: 9, name: 'FTP009 - Extrusão' },
-          { id: 10, name: 'FTP010 - Espumação' },
-        ];
-        setDocuments(simulatedDocuments);
-      } catch (error) {
-        console.error('Error fetching pending documents:', error);
-      }
+      const simulatedDocuments = [
+        { id: 1, name: 'FTP 424 - Teste de estanqueidade', reviewDescription: 'Alterar imagem do dispositivo TEX.' },
+        { id: 2, name: 'FTP 1102 - Montagem de componentes', reviewDescription: 'Alterar a descrição de obrigatoriedade do uso de EPIs.' },
+        { id: 3, name: 'FTP 087 - Injeção', reviewDescription: 'Atualizar a revisão do desenho.' },
+        { id: 4, name: 'FTP 088 - Refile', reviewDescription: 'Corrigir o código do cliente.' },
+        { id: 5, name: 'FTP 089 - Embalagem', reviewDescription: 'Atualizar a quantidade de peças por embalagem.' },
+        { id: 6, name: 'FTP 982 - Montagem de Versafit', reviewDescription: 'Alterar o código de componente.' },
+        { id: 7, name: 'FTP 111 - Refile', reviewDescription: 'Alterar data de revisão do desenho da peça.' },
+        { id: 8, name: 'FTP 1056 - Injeção de coxim', reviewDescription: 'Alterar imagem do maquinário.' },
+        { id: 9, name: 'FTP 300 - Montagem de componentes', reviewDescription: 'Revisão de desenho do cliente.' },
+        { id: 10, name: 'FTP 616 - Embalagem', reviewDescription: 'Alterar descrição de obrigatoriedade do uso dos EPIs.' }
+      ];
+      setDocuments(simulatedDocuments);
     };
 
     fetchPendingDocuments();
@@ -124,6 +183,19 @@ const PendingDocuments = () => {
 
   const handleSign = () => {
     navigate('/dashboard');
+  };
+
+  const handleReject = (id) => {
+    setRejectionReason('');
+    setShowPopup(id); // Define o documento atual para reprovar.
+  };
+
+  const handleSendRejection = () => {
+    if (showPopup) {
+      alert('Mensagem enviada para o elaborador inicial.');
+      setDocuments((prevDocs) => prevDocs.filter((doc) => doc.id !== showPopup));
+      setShowPopup(false);
+    }
   };
 
   return (
@@ -136,6 +208,7 @@ const PendingDocuments = () => {
             <thead>
               <tr>
                 <th>Nome do Documento</th>
+                <th>Descrição da Revisão</th>
                 <th>Ações</th>
               </tr>
             </thead>
@@ -143,8 +216,10 @@ const PendingDocuments = () => {
               {documents.map((doc) => (
                 <tr key={doc.id}>
                   <td>{doc.name}</td>
-                  <td>
+                  <td>{doc.reviewDescription}</td>
+                  <td className="button-container">
                     <button onClick={handleSign}>Assinar</button>
+                    <button onClick={() => handleReject(doc.id)}>Reprovar</button>
                   </td>
                 </tr>
               ))}
@@ -152,6 +227,20 @@ const PendingDocuments = () => {
           </Table>
         </TableContainer>
       </ContentContainer>
+      {showPopup && (
+        <Popup>
+          <h3>Motivo da Reprovação</h3>
+          <textarea
+            value={rejectionReason}
+            onChange={(e) => setRejectionReason(e.target.value)}
+            placeholder="Digite o motivo da reprovação..."
+          />
+          <div className="button-container">
+            <button onClick={handleSendRejection}>Enviar</button>
+            <button onClick={() => setShowPopup(false)}>Cancelar</button>
+          </div>
+        </Popup>
+      )}
     </PageContainer>
   );
 };
