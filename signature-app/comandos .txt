@@ -1,0 +1,13 @@
+Instalar dependencias:
+npm install
+
+iniciar projeto:
+npm run dev
+
+abrir server:
+npx json-server --watch database.json --port 5000
+
+dar commit:
+git add .
+git commit -m "texto"
+git push origin main
