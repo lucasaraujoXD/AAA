@@ -164,7 +164,7 @@ const PendingDocuments = () => {
   useEffect(() => {
     const fetchPendingDocuments = async () => {
       const simulatedDocuments = [
-        { id: 1, name: 'FTP 424 - Teste de estanqueidade', reviewDescription: 'Alterar imagem do dispositivo TEX.' },
+        { id: 1, name: 'FTP 424 - Teste de estanqueidade', reviewDescription: 'Alterado imagem do dispositivo de teste de estanqueidade.' },
 
       ];
       setDocuments(simulatedDocuments);

@@ -125,7 +125,7 @@ const PopUp = styled.div`
   text-align: center;
   color: #fff;
   box-sizing: border-box;
-  
+
   @media (max-width: 768px) {
     width: 90%;
     padding: 15px;
@@ -181,7 +181,10 @@ const UploadDocument = () => {
     if (selectedFile && /\.(xls|xlsx)$/.test(selectedFile.name)) {
       setFile(selectedFile);
       setFileName(selectedFile.name);
-      setShowPopUp(true);  // Exibe o pop-up para descrever a revisão
+      // Exibe o pop-up apenas para usuários de Engenharia
+      if (userRole === 'engenharia') {
+        setShowPopUp(true);
+      }
     } else {
       alert('Por favor, selecione um arquivo Excel (.xls ou .xlsx) válido.');
     }
@@ -255,6 +258,12 @@ const UploadDocument = () => {
 
   const handleDescriptionSubmit = () => {
     console.log('Descrição do documento:', description);
+
+    // Alerta quando a descrição for enviada pela Engenharia
+    if (userRole === 'engenharia') {
+      alert('Documento enviado para documentos pendentes da manufatura e qualidade!');
+    }
+
     setShowPopUp(false);  // Fecha o pop-up após o envio
   };
 
@@ -288,7 +297,7 @@ const UploadDocument = () => {
         <h4>Assinatura do Responsável ({userRole})</h4>
         <SignatureCanvas ref={sigCanvas} canvasProps={{ width: 500, height: 200, className: 'sigCanvas' }} />
         <Button onClick={clearSignature}>Limpar Assinatura</Button>
-        <Button onClick={saveWithSignature}>Salvar com Assinatura</Button>
+        <Button onClick={saveWithSignature}>Salvar Documento</Button>
       </SignatureContainer>
     </Container>
   );
