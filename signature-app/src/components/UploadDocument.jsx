@@ -2,9 +2,9 @@ import React, { useState, useRef, useEffect } from 'react';
 import * as ExcelJS from 'exceljs';
 import { saveAs } from 'file-saver';
 import styled from 'styled-components';
-import ExcelViewerModal from './ExcelViewerModal';
 import SignatureCanvas from 'react-signature-canvas';
 
+// Estilos para o container, título, botões, etc.
 const Container = styled.div`
   padding: 20px;
   background-color: ${({ theme }) => theme.body};
@@ -13,7 +13,7 @@ const Container = styled.div`
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
   max-width: 100%;
   box-sizing: border-box;
-  text-align: center; /* Centraliza o conteúdo */
+  text-align: center;
 
   @media (max-width: 768px) {
     padding: 10px;
@@ -102,12 +102,72 @@ const SignatureContainer = styled.div`
   }
 `;
 
+// Estilo do pop-up
+const PopUpContainer = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+`;
+
+const PopUp = styled.div`
+  background: #333;
+  padding: 20px;
+  border-radius: 8px;
+  width: 80%;
+  max-width: 500px;
+  text-align: center;
+  color: #fff;
+  box-sizing: border-box;
+  
+  @media (max-width: 768px) {
+    width: 90%;
+    padding: 15px;
+  }
+`;
+
+const Textarea = styled.textarea`
+  width: 100%;
+  height: 150px;
+  margin-top: 10px;
+  padding: 1px;
+  font-size: 1rem;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  background-color: ${({ theme }) => theme.body};
+  color: #ccc;
+  resize: none;
+
+  &::placeholder {
+    color: #888;
+  }
+
+  @media (max-width: 768px) {
+    font-size: 0.9rem;
+    height: 120px;
+  }
+`;
+
+const ButtonWrapper = styled.div`
+  margin-top: 20px;
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+`;
+
 const UploadDocument = () => {
   const [file, setFile] = useState(null);
   const [fileName, setFileName] = useState('');
-  const [showModal, setShowModal] = useState(false);
-  const sigCanvas = useRef({});
   const [userRole, setUserRole] = useState('');
+  const [showPopUp, setShowPopUp] = useState(false);  // Controle do pop-up
+  const [description, setDescription] = useState('');  // Texto da revisão
+  const sigCanvas = useRef({});
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem('user'));
@@ -121,7 +181,7 @@ const UploadDocument = () => {
     if (selectedFile && /\.(xls|xlsx)$/.test(selectedFile.name)) {
       setFile(selectedFile);
       setFileName(selectedFile.name);
-      setShowModal(true);
+      setShowPopUp(true);  // Exibe o pop-up para descrever a revisão
     } else {
       alert('Por favor, selecione um arquivo Excel (.xls ou .xlsx) válido.');
     }
@@ -189,10 +249,17 @@ const UploadDocument = () => {
     }
   };
 
+  const handleDescriptionChange = (e) => {
+    setDescription(e.target.value);
+  };
+
+  const handleDescriptionSubmit = () => {
+    console.log('Descrição do documento:', description);
+    setShowPopUp(false);  // Fecha o pop-up após o envio
+  };
+
   return (
     <Container>
-  
-
       <FileInputContainer>
         <FileInputLabel>
           Escolher Arquivo
@@ -200,7 +267,23 @@ const UploadDocument = () => {
         </FileInputLabel>
         {fileName && <FileName>Arquivo selecionado: {fileName}</FileName>}
       </FileInputContainer>
-      <ExcelViewerModal file={file} isOpen={showModal} onClose={() => setShowModal(false)} />
+
+      {showPopUp && (
+        <PopUpContainer>
+          <PopUp>
+            <h4>Descrição das alterações</h4>
+            <Textarea
+              value={description}
+              onChange={handleDescriptionChange}
+              placeholder="Digite a descrição das alterações para este documento."
+            />
+            <ButtonWrapper>
+              <Button onClick={handleDescriptionSubmit}>Enviar</Button>
+            </ButtonWrapper>
+          </PopUp>
+        </PopUpContainer>
+      )}
+
       <SignatureContainer>
         <h4>Assinatura do Responsável ({userRole})</h4>
         <SignatureCanvas ref={sigCanvas} canvasProps={{ width: 500, height: 200, className: 'sigCanvas' }} />

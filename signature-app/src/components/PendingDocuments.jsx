@@ -165,15 +165,7 @@ const PendingDocuments = () => {
     const fetchPendingDocuments = async () => {
       const simulatedDocuments = [
         { id: 1, name: 'FTP 424 - Teste de estanqueidade', reviewDescription: 'Alterar imagem do dispositivo TEX.' },
-        { id: 2, name: 'FTP 1102 - Montagem de componentes', reviewDescription: 'Alterar a descrição de obrigatoriedade do uso de EPIs.' },
-        { id: 3, name: 'FTP 087 - Injeção', reviewDescription: 'Atualizar a revisão do desenho.' },
-        { id: 4, name: 'FTP 088 - Refile', reviewDescription: 'Corrigir o código do cliente.' },
-        { id: 5, name: 'FTP 089 - Embalagem', reviewDescription: 'Atualizar a quantidade de peças por embalagem.' },
-        { id: 6, name: 'FTP 982 - Montagem de Versafit', reviewDescription: 'Alterar o código de componente.' },
-        { id: 7, name: 'FTP 111 - Refile', reviewDescription: 'Alterar data de revisão do desenho da peça.' },
-        { id: 8, name: 'FTP 1056 - Injeção de coxim', reviewDescription: 'Alterar imagem do maquinário.' },
-        { id: 9, name: 'FTP 300 - Montagem de componentes', reviewDescription: 'Revisão de desenho do cliente.' },
-        { id: 10, name: 'FTP 616 - Embalagem', reviewDescription: 'Alterar descrição de obrigatoriedade do uso dos EPIs.' }
+
       ];
       setDocuments(simulatedDocuments);
     };
