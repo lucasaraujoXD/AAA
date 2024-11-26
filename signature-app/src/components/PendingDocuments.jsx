@@ -164,7 +164,7 @@ const PendingDocuments = () => {
   useEffect(() => {
     const fetchPendingDocuments = async () => {
       const simulatedDocuments = [
-        { id: 1, name: 'FTP 424 - Teste de estanqueidade', reviewDescription: 'Alterado imagem do dispositivo de teste de estanqueidade.' },
+        { id: 1, name: 'FTP 424 - Teste de estanqueidade', reviewDescription: 'Atualizada a descrição de obrigatoriedade do uso dos EPI´s. ' },
 
       ];
       setDocuments(simulatedDocuments);
