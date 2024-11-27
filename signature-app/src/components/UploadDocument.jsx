@@ -102,77 +102,28 @@ const SignatureContainer = styled.div`
   }
 `;
 
-// Estilo do pop-up
-const PopUpContainer = styled.div`
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-`;
-
-const PopUp = styled.div`
-  background: #333;
-  padding: 20px;
-  border-radius: 8px;
-  width: 80%;
-  max-width: 500px;
-  text-align: center;
-  color: #fff;
-  box-sizing: border-box;
-
-  @media (max-width: 768px) {
-    width: 90%;
-    padding: 15px;
-  }
-`;
-
-const Textarea = styled.textarea`
-  width: 100%;
-  height: 150px;
-  margin-top: 10px;
-  padding: 0px;
-  font-size: 1rem;
-  border-radius: 4px;
-  border: 1px solid #ccc;
-  background-color: ${({ theme }) => theme.body};
-  color: #ccc;
-  resize: none;
-
-  &::placeholder {
-    color: #888;
-  }
-
-  @media (max-width: 768px) {
-    font-size: 0.9rem;
-    height: 120px;
-  }
-`;
-
-const ButtonWrapper = styled.div`
-  margin-top: 20px;
-  display: flex;
-  justify-content: space-between;
-  gap: 10px;
-`;
-
 const UploadDocument = () => {
   const [file, setFile] = useState(null);
   const [fileName, setFileName] = useState('');
   const [userRole, setUserRole] = useState('');
-  const [showPopUp, setShowPopUp] = useState(false);  // Controle do pop-up
-  const [description, setDescription] = useState('');  // Texto da revisão
+  const [savedSignature, setSavedSignature] = useState(null); // Armazena a assinatura salva
   const sigCanvas = useRef({});
 
+  // Obtém o papel do usuário e a assinatura salva no banco ao carregar o componente
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem('user'));
     if (user && user.role) {
       setUserRole(user.role);
+
+      // Busca a assinatura salva no banco
+      fetch(`http://localhost:5000/signatures?userId=${user.id}`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.length > 0) {
+            setSavedSignature(data[0].signature); // Salva a assinatura existente
+          }
+        })
+        .catch((err) => console.error('Erro ao buscar assinatura:', err));
     }
   }, []);
 
@@ -181,16 +132,69 @@ const UploadDocument = () => {
     if (selectedFile && /\.(xls|xlsx)$/.test(selectedFile.name)) {
       setFile(selectedFile);
       setFileName(selectedFile.name);
-      // Exibe o pop-up apenas para usuários de Engenharia
-      if (userRole === 'engenharia') {
-        setShowPopUp(true);
-      }
     } else {
       alert('Por favor, selecione um arquivo Excel (.xls ou .xlsx) válido.');
     }
   };
 
   const clearSignature = () => sigCanvas.current.clear();
+
+  const saveSignatureToDatabase = () => {
+    const trimmedSignature = sigCanvas.current.getTrimmedCanvas().toDataURL('image/png');
+    const user = JSON.parse(localStorage.getItem('user'));
+
+    if (!trimmedSignature || !user) {
+      alert('Por favor, faça a assinatura antes de salvar.');
+      return;
+    }
+
+    fetch(`http://localhost:5000/signatures?userId=${user.id}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.length > 0) {
+          // Atualiza a assinatura existente
+          fetch(`http://localhost:5000/signatures/${data[0].id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              ...data[0],
+              signature: trimmedSignature,
+            }),
+          }).then(() => {
+            alert('Assinatura atualizada com sucesso!');
+            setSavedSignature(trimmedSignature);
+          });
+        } else {
+          // Salva uma nova assinatura
+          fetch('http://localhost:5000/signatures', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              userId: user.id,
+              signature: trimmedSignature,
+            }),
+          }).then(() => {
+            alert('Assinatura salva com sucesso!');
+            setSavedSignature(trimmedSignature);
+          });
+        }
+      });
+  };
+
+  const loadSavedSignature = () => {
+    if (savedSignature) {
+      const img = new Image();
+      img.src = savedSignature;
+      img.onload = () => {
+        const canvas = sigCanvas.current.getCanvas();
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      };
+    } else {
+      alert('Nenhuma assinatura salva foi encontrada.');
+    }
+  };
 
   const saveWithSignature = async () => {
     if (!file) {
@@ -252,21 +256,6 @@ const UploadDocument = () => {
     }
   };
 
-  const handleDescriptionChange = (e) => {
-    setDescription(e.target.value);
-  };
-
-  const handleDescriptionSubmit = () => {
-    console.log('Descrição do documento:', description);
-
-    // Alerta quando a descrição for enviada pela Engenharia
-    if (userRole === 'engenharia') {
-      alert('Documento enviado para documentos pendentes da manufatura e qualidade!');
-    }
-
-    setShowPopUp(false);  // Fecha o pop-up após o envio
-  };
-
   return (
     <Container>
       <FileInputContainer>
@@ -277,27 +266,12 @@ const UploadDocument = () => {
         {fileName && <FileName>Arquivo selecionado: {fileName}</FileName>}
       </FileInputContainer>
 
-      {showPopUp && (
-        <PopUpContainer>
-          <PopUp>
-            <h4>Descrição das alterações</h4>
-            <Textarea
-              value={description}
-              onChange={handleDescriptionChange}
-              placeholder="Digite a descrição das alterações para este documento."
-            />
-            <ButtonWrapper>
-              <Button onClick={handleDescriptionSubmit}>Enviar</Button>
-            </ButtonWrapper>
-          </PopUp>
-        </PopUpContainer>
-      )}
-
       <SignatureContainer>
         <h4>Assinatura do Responsável ({userRole})</h4>
         <SignatureCanvas ref={sigCanvas} canvasProps={{ width: 500, height: 200, className: 'sigCanvas' }} />
         <Button onClick={clearSignature}>Limpar Assinatura</Button>
         <Button onClick={saveWithSignature}>Salvar Documento</Button>
+        <Button onClick={loadSavedSignature}>Usar Assinatura Salva</Button>
       </SignatureContainer>
     </Container>
   );

@@ -4,6 +4,8 @@ import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import logo from '../assets/datawakelogo.png';
 import { FaUser, FaSignOutAlt, FaFileUpload, FaClipboardList } from 'react-icons/fa';
+import { FaPenNib } from 'react-icons/fa';
+
 
 const SidebarContainer = styled.div`
   position: fixed;
@@ -114,6 +116,9 @@ const Sidebar = () => {
           <p><strong>Cargo:</strong> {user.role}</p>
         </UserInfoPopup>
       )}
+      <IconContainer onClick={() => navigate('/create-signature')}>
+        <FaPenNib title="Criar Assinatura" />
+        </IconContainer>
 
       <IconContainer onClick={() => navigate('/dashboard')}>
         <FaFileUpload title="Selecionar Documento" />
