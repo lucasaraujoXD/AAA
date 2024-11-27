@@ -120,7 +120,7 @@ const Popup = styled.div`
 
   textarea {
     width: 100%;
-    height: 150px; /* Aumenta a altura da caixa de texto */
+    height: 150px;
     margin-bottom: 20px;
     padding: 10px;
     background-color: #333;
@@ -134,8 +134,8 @@ const Popup = styled.div`
 
   .button-container {
     display: flex;
-    justify-content: center; /* Centraliza os botões */
-    gap: 20px; /* Adiciona espaçamento uniforme entre os botões */
+    justify-content: center;
+    gap: 20px;
   }
 
   button {
@@ -143,17 +143,14 @@ const Popup = styled.div`
     border: none;
     border-radius: 4px;
     cursor: pointer;
-    background-color: #ffc107; /* Cor amarela para ambos os botões */
+    background-color: #ffc107;
     color: #000;
-    
 
     &:hover {
-      background-color: #e0a800; /* Cor de hover para ambos os botões */
+      background-color: #e0a800;
     }
   }
 `;
-
-
 
 const PendingDocuments = () => {
   const [documents, setDocuments] = useState([]);
@@ -162,12 +159,26 @@ const PendingDocuments = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    // Função para buscar os documentos do banco
     const fetchPendingDocuments = async () => {
-      const simulatedDocuments = [
-        { id: 1, name: 'FTP 424 - Teste de estanqueidade', reviewDescription: 'Atualizada a descrição de obrigatoriedade do uso dos EPI´s. ' },
-
-      ];
-      setDocuments(simulatedDocuments);
+      try {
+        const response = await fetch('http://localhost:5000/docs');
+        const data = await response.json();
+        alert(data)
+        // Verifica se os dados foram recebidos corretamente
+        if (data) {
+          const fetchedDocuments = data.docs.map((doc) => ({
+            id: doc.id,
+            name: doc.fileName, // Pega o nome do arquivo
+            reviewDescription: doc.description, // Pega a descrição de revisão
+          }));
+          setDocuments(fetchedDocuments); // Atualiza o estado com os documentos
+        } else {
+          console.error('Estrutura de dados inválida:', data);
+        }
+      } catch (error) {
+        console.error('Erro ao buscar documentos:', error);
+      }
     };
 
     fetchPendingDocuments();
