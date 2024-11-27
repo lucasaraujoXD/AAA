@@ -178,17 +178,25 @@ const UploadDocument = () => {
 
   const handleFileChange = async (e) => {
     const selectedFile = e.target.files[0];
-    
+  
     if (selectedFile && /\.(xls|xlsx)$/.test(selectedFile.name)) {
       setFile(selectedFile);
       setFileName(selectedFile.name);
-      
+  
       // Exibe o pop-up apenas para usuários de Engenharia
       if (userRole === 'engenharia') {
         setShowPopUp(true);
       }
   
-      // Agora, vamos atualizar o banco de dados
+      // Captura a descrição antes de enviar
+      const descriptionValue = description; // Captura o valor atual da descrição
+  
+      if (!descriptionValue) {
+        alert('Por favor, insira uma descrição.');
+        return; // Não envia a requisição se não houver descrição
+      }
+  
+      // Agora, vamos atualizar o banco de dados com a descrição capturada
       try {
         // Supondo que o backend esteja rodando em localhost na porta 5000
         const response = await fetch('http://localhost:5000/docs', {
@@ -197,12 +205,13 @@ const UploadDocument = () => {
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({
-            fileName: selectedFile.name
+            fileName: selectedFile.name,
+            description: descriptionValue // Envia a descrição capturada
           })
         });
   
         if (response.ok) {
-          console.log('Nome do arquivo adicionado ao banco de dados');
+          console.log('Arquivo e descrição adicionados ao banco de dados');
         } else {
           console.error('Erro ao adicionar arquivo no banco de dados');
         }

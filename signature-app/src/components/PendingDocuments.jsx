@@ -156,23 +156,24 @@ const PendingDocuments = () => {
   const [documents, setDocuments] = useState([]);
   const [showPopup, setShowPopup] = useState(false);
   const [rejectionReason, setRejectionReason] = useState('');
+  const [selectedDoc, setSelectedDoc] = useState(null);
   const navigate = useNavigate();
 
+  // Carregar documentos pendentes
   useEffect(() => {
-    // Função para buscar os documentos do banco
     const fetchPendingDocuments = async () => {
       try {
         const response = await fetch('http://localhost:5000/docs');
         const data = await response.json();
-        alert(data)
-        // Verifica se os dados foram recebidos corretamente
+
         if (data) {
-          const fetchedDocuments = data.docs.map((doc) => ({
+          const fetchedDocuments = data.map((doc) => ({
             id: doc.id,
-            name: doc.fileName, // Pega o nome do arquivo
-            reviewDescription: doc.description, // Pega a descrição de revisão
+            name: doc.fileName,
+            reviewDescription: doc.description,
           }));
-          setDocuments(fetchedDocuments); // Atualiza o estado com os documentos
+
+          setDocuments(fetchedDocuments);
         } else {
           console.error('Estrutura de dados inválida:', data);
         }
@@ -184,19 +185,40 @@ const PendingDocuments = () => {
     fetchPendingDocuments();
   }, []);
 
-  const handleSign = () => {
+  // Função para salvar a descrição no estado
+  const handleSaveDescription = () => {
+    if (selectedDoc && rejectionReason) {
+      // Atualizar a descrição do documento no estado
+      const updatedDocuments = documents.map((doc) =>
+        doc.id === selectedDoc.id
+          ? { ...doc, reviewDescription: rejectionReason }
+          : doc
+      );
+
+      setDocuments(updatedDocuments);
+      setShowPopup(false);
+      setRejectionReason('');
+      alert('Descrição salva com sucesso!');
+    } else {
+      alert('Por favor, insira uma descrição válida!');
+    }
+  };
+
+  const handleSign = (id) => {
+    console.log(`Assinando o documento com id: ${id}`);
     navigate('/dashboard');
   };
 
-  const handleReject = (id) => {
-    setRejectionReason('');
-    setShowPopup(id); // Define o documento atual para reprovar.
+  const handleReject = (doc) => {
+    setSelectedDoc(doc); // Guarda o documento selecionado
+    setRejectionReason(doc.reviewDescription || ''); // Preenche o campo com a descrição atual
+    setShowPopup(true);
   };
 
   const handleSendRejection = () => {
-    if (showPopup) {
+    if (selectedDoc) {
       alert('Mensagem enviada para o elaborador inicial.');
-      setDocuments((prevDocs) => prevDocs.filter((doc) => doc.id !== showPopup));
+      setDocuments((prevDocs) => prevDocs.filter((doc) => doc.id !== selectedDoc.id));
       setShowPopup(false);
     }
   };
@@ -218,12 +240,12 @@ const PendingDocuments = () => {
             <tbody>
               {documents.map((doc) => (
                 <tr key={doc.id}>
-                  <td>{doc.name}</td>
-                  <td>{doc.reviewDescription}</td>
+                  <td>{doc.name}</td> {/* Nome do Documento */}
+                  <td>{doc.reviewDescription}</td> {/* Descrição da Revisão */}
                   <td className="button-container">
-                    <button onClick={handleSign}>Assinar</button>
-                    <button onClick={() => handleReject(doc.id)}>Reprovar</button>
-                  </td>
+                    <button onClick={() => handleSign(doc.id)}>Assinar</button>
+                    <button onClick={() => handleReject(doc)}>Reprovar</button>
+                  </td> {/* Ações */}
                 </tr>
               ))}
             </tbody>
@@ -239,6 +261,7 @@ const PendingDocuments = () => {
             placeholder="Digite o motivo da reprovação..."
           />
           <div className="button-container">
+            <button onClick={handleSaveDescription}>Salvar Descrição</button>
             <button onClick={handleSendRejection}>Enviar</button>
             <button onClick={() => setShowPopup(false)}>Cancelar</button>
           </div>
