@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import * as ExcelJS from 'exceljs';
 import { saveAs } from 'file-saver';
 import styled from 'styled-components';
@@ -20,9 +20,7 @@ const Container = styled.div`
   }
 `;
 
-const Title = styled.h3`
-  margin-bottom: 20px;
-`;
+
 
 const FileInputContainer = styled.div`
   display: flex;
@@ -109,7 +107,7 @@ const PopUpContainer = styled.div`
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.8);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -117,18 +115,24 @@ const PopUpContainer = styled.div`
 `;
 
 const PopUp = styled.div`
-  background: #333;
+  background: ${({ theme }) => theme.body};
   padding: 20px;
   border-radius: 8px;
   width: 80%;
-  max-width: 500px;
+  max-width: 600px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
   text-align: center;
-  color: #fff;
-  box-sizing: border-box;
+  color: ${({ theme }) => theme.text};
+
+  h4 {
+    margin-bottom: 20px;
+    font-size: 1.5rem;
+    color: #ffcc00;
+  }
 
   @media (max-width: 768px) {
-    width: 90%;
     padding: 15px;
+    width: 90%;
   }
 `;
 
@@ -141,7 +145,7 @@ const Textarea = styled.textarea`
   border-radius: 4px;
   border: 1px solid #ccc;
   background-color: ${({ theme }) => theme.body};
-  color: #ccc;
+  color: ${({ theme }) => theme.text};
   resize: none;
 
   &::placeholder {
@@ -157,9 +161,10 @@ const Textarea = styled.textarea`
 const ButtonWrapper = styled.div`
   margin-top: 20px;
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   gap: 10px;
 `;
+
 
 const UploadDocument = () => {
   const [file, setFile] = useState(null);
@@ -186,43 +191,77 @@ const UploadDocument = () => {
       // Exibe o pop-up apenas para usuários de Engenharia
       if (userRole === 'engenharia') {
         setShowPopUp(true);
+        return; // Aguardar o fluxo de descrição
       }
   
-      // Captura a descrição antes de enviar
-      const descriptionValue = description; // Captura o valor atual da descrição
-  
-      if (!descriptionValue) {
-        alert('Por favor, insira uma descrição.');
-        return; // Não envia a requisição se não houver descrição
-      }
-  
-      // Agora, vamos atualizar o banco de dados com a descrição capturada
+      // Para outros usuários, salvar apenas o nome do arquivo
       try {
-        // Supondo que o backend esteja rodando em localhost na porta 5000
         const response = await fetch('http://localhost:5000/docs', {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
           },
           body: JSON.stringify({
             fileName: selectedFile.name,
-            description: descriptionValue // Envia a descrição capturada
-          })
+            description: '', // Sem descrição para outros papéis
+          }),
         });
   
         if (response.ok) {
-          console.log('Arquivo e descrição adicionados ao banco de dados');
+          alert('Arquivo enviado com sucesso.');
         } else {
-          console.error('Erro ao adicionar arquivo no banco de dados');
+          console.error('Erro ao salvar o arquivo no banco de dados.');
+          alert('Erro ao enviar o arquivo. Tente novamente.');
         }
       } catch (error) {
         console.error('Erro de conexão com o backend:', error);
+        alert('Erro ao se conectar ao backend.');
       }
     } else {
       alert('Por favor, selecione um arquivo Excel (.xls ou .xlsx) válido.');
     }
   };
   
+
+  const handleDescriptionSubmit = async () => {
+    if (!description.trim()) {
+      alert('Por favor, insira uma descrição.');
+      return;
+    }
+  
+    if (!file) {
+      alert('Nenhum arquivo selecionado.');
+      return;
+    }
+  
+    try {
+      const response = await fetch('http://localhost:5000/docs', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          fileName: file.name,
+          description: description.trim(), // Envia a descrição capturada
+        }),
+      });
+  
+      if (response.ok) {
+        alert('Arquivo e descrição enviados com sucesso.');
+        setShowPopUp(false);
+        setDescription('');
+        // Não reseta o arquivo aqui!
+      } else {
+        console.error('Erro ao adicionar arquivo no banco de dados');
+        alert('Erro ao enviar os dados. Tente novamente.');
+      }
+    } catch (error) {
+      console.error('Erro de conexão com o backend:', error);
+      alert('Erro ao se conectar ao backend.');
+    }
+  };
+  
+
 
   const clearSignature = () => sigCanvas.current.clear();
 
@@ -231,52 +270,56 @@ const UploadDocument = () => {
       alert('Por favor, carregue um arquivo antes de salvar.');
       return;
     }
-
+  
     try {
       const data = new Uint8Array(await file.arrayBuffer());
       const workbook = new ExcelJS.Workbook();
       await workbook.xlsx.load(data);
-
+  
       const worksheet = workbook.getWorksheet('INSTRUÇÃO CONTROLE');
       if (!worksheet) {
         alert('A planilha "instrução de controle" não foi encontrada no arquivo.');
         return;
       }
-
+  
       const lastRow = worksheet.lastRow;
       if (!lastRow) {
         alert('Nenhuma linha encontrada na planilha "instrução de controle".');
         return;
       }
-
+  
       const columnMapping = {
         engenharia: 4,
         manufatura: 18,
         qualidade: 24,
       };
-
+  
       const columnToPlaceSignature = columnMapping[userRole] || 4;
-
+  
       if (sigCanvas.current.getTrimmedCanvas()) {
         const imgData = sigCanvas.current.getTrimmedCanvas().toDataURL('image/png');
         const response = await fetch(imgData);
         const buffer = await response.arrayBuffer();
-
+  
         const img = workbook.addImage({
           buffer,
           extension: 'png',
         });
-
+  
         const lastRowNumber = lastRow.number;
         worksheet.addImage(img, {
           tl: { col: columnToPlaceSignature - 1, row: lastRowNumber - 2 },
           ext: { width: 150, height: 50 },
         });
-
+  
         const updatedBuffer = await workbook.xlsx.writeBuffer();
         const blob = new Blob([updatedBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
         saveAs(blob, 'DocumentoAssinado.xlsx');
         alert('Documento salvo com a assinatura!');
+  
+        // Agora redefina o arquivo
+        setFile(null);
+        setFileName('');
       } else {
         alert('Por favor, faça a assinatura antes de salvar.');
       }
@@ -285,20 +328,10 @@ const UploadDocument = () => {
       alert('Erro ao salvar o documento.');
     }
   };
+  
 
   const handleDescriptionChange = (e) => {
     setDescription(e.target.value);
-  };
-
-  const handleDescriptionSubmit = () => {
-    console.log('Descrição do documento:', description);
-
-    // Alerta quando a descrição for enviada pela Engenharia
-    if (userRole === 'engenharia') {
-      alert('Documento enviado para documentos pendentes da manufatura e qualidade!');
-    }
-
-    setShowPopUp(false);  // Fecha o pop-up após o envio
   };
 
   const handlePasteSignature = async () => {
@@ -309,13 +342,13 @@ const UploadDocument = () => {
         alert('Usuário não encontrado.');
         return;
       }
-  
+
       // Faz a requisição para buscar a assinatura no banco de dados (supondo que você tenha um endpoint para isso)
       const response = await fetch(`http://localhost:5000/signatures?userId=${user.id}&documentId=1`);
       const data = await response.json();
-  
+
       // Busca a assinatura associada ao userId e documentId
-      const signatureFromDB = data.find(item => item.userId === user.id )?.signature;
+      const signatureFromDB = data.find(item => item.userId === user.id)?.signature;
       if (signatureFromDB) {
         // Se encontrou a assinatura, coloca no canvas
         sigCanvas.current.fromDataURL(signatureFromDB);
@@ -327,7 +360,7 @@ const UploadDocument = () => {
       alert('Erro ao buscar a assinatura.');
     }
   };
-  
+
   return (
     <Container>
       <FileInputContainer>
@@ -354,16 +387,16 @@ const UploadDocument = () => {
         </PopUpContainer>
       )}
 
-<SignatureContainer>
-  <h4>Assinatura do Responsável ({userRole})</h4>
-  <SignatureCanvas 
-    ref={sigCanvas} 
-    canvasProps={{ width: 500, height: 200, className: 'sigCanvas' }} 
-  />
-  <Button onClick={clearSignature}>Limpar Assinatura</Button>
-  <Button onClick={handlePasteSignature}>Colar assinatura</Button>
-  <Button onClick={saveWithSignature}>Salvar Documento</Button>
-</SignatureContainer>
+      <SignatureContainer>
+        <h4>Assinatura do Responsável ({userRole})</h4>
+        <SignatureCanvas
+          ref={sigCanvas}
+          canvasProps={{ width: 500, height: 200, className: 'sigCanvas' }}
+        />
+        <Button onClick={clearSignature}>Limpar Assinatura</Button>
+        <Button onClick={handlePasteSignature}>Colar assinatura</Button>
+        <Button onClick={saveWithSignature}>Salvar Documento</Button>
+      </SignatureContainer>
     </Container>
   );
 };

@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import Sidebar from './Sidebar';
 
-const PageContainer = styled.div`
+export const PageContainer = styled.div`
   display: flex;
   flex-direction: column;
   width: 100%;
@@ -14,7 +14,7 @@ const PageContainer = styled.div`
   }
 `;
 
-const ContentContainer = styled.div`
+export const ContentContainer = styled.div`
   padding: 20px;
   flex: 1;
   background-color: ${({ theme }) => theme.body};
@@ -31,13 +31,13 @@ const ContentContainer = styled.div`
   }
 `;
 
-const TableContainer = styled.div`
+export const TableContainer = styled.div`
   width: 100%;
-  overflow-x: auto;
+  overflow-x: auto; /* Adiciona barra de rolagem horizontal para tabelas largas */
   margin-top: 20px;
 `;
 
-const Table = styled.table`
+export const Table = styled.table`
   width: 100%;
   border-collapse: collapse;
   min-width: 800px;
@@ -70,7 +70,13 @@ const Table = styled.table`
   .button-container {
     display: flex;
     justify-content: center;
-    gap: 10px;
+    gap: 16px; /* Espaçamento horizontal entre os botões */
+
+    /* Garantindo que os botões se ajustem no mobile */
+    @media (max-width: 768px) {
+      flex-direction: column; /* Empilha os botões no mobile */
+      gap: 10px; /* Espaçamento vertical entre os botões no mobile */
+    }
   }
 
   button {
@@ -84,22 +90,20 @@ const Table = styled.table`
     &:hover {
       background-color: #e6b800;
     }
-  }
 
-  @media (max-width: 768px) {
-    th,
-    td {
-      padding: 10px;
+    /* Margens adicionais para espaçamento garantido */
+    & + button {
+      margin-left: px; /* Espaçamento extra entre botões */
     }
 
-    button {
-      width: 100%;
-      margin-top: 15px;
+    @media (max-width: 768px) {
+      width: 100%; /* Botões ocupam toda a largura no mobile */
+      margin-left: 0; /* Removendo margem lateral no mobile */
     }
   }
 `;
 
-const Popup = styled.div`
+export const Popup = styled.div`
   position: fixed;
   top: 50%;
   left: 50%;
@@ -135,7 +139,12 @@ const Popup = styled.div`
   .button-container {
     display: flex;
     justify-content: center;
-    gap: 20px;
+    gap: 20px; /* Aumentado o espaçamento entre os botões */
+
+    @media (max-width: 768px) {
+      flex-direction: column;
+      gap: 16px; /* Ajuste para dispositivos móveis */
+    }
   }
 
   button {
@@ -151,6 +160,7 @@ const Popup = styled.div`
     }
   }
 `;
+
 
 const PendingDocuments = () => {
   const [documents, setDocuments] = useState([]);
@@ -215,11 +225,27 @@ const PendingDocuments = () => {
     setShowPopup(true);
   };
 
-  const handleSendRejection = () => {
+  const handleSendRejection = async () => {
     if (selectedDoc) {
-      alert('Mensagem enviada para o elaborador inicial.');
-      setDocuments((prevDocs) => prevDocs.filter((doc) => doc.id !== selectedDoc.id));
-      setShowPopup(false);
+      try {
+        // Envia uma requisição DELETE para o servidor
+        const response = await fetch(`http://localhost:5000/docs/${selectedDoc.id}`, {
+          method: 'DELETE',
+        });
+  
+        if (response.ok) {
+          // Remove o documento da lista
+          setDocuments((prevDocs) => prevDocs.filter((doc) => doc.id !== selectedDoc.id));
+          setShowPopup(false);
+          alert('Documento reprovado e removido com sucesso.');
+        } else {
+          console.error('Erro ao tentar excluir o documento:', response.statusText);
+          alert('Não foi possível remover o documento. Tente novamente.');
+        }
+      } catch (error) {
+        console.error('Erro na exclusão do documento:', error);
+        alert('Ocorreu um erro ao remover o documento. Verifique sua conexão e tente novamente.');
+      }
     }
   };
 
