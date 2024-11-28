@@ -31,28 +31,24 @@ export const ContentContainer = styled.div`
   }
 `;
 
-export const TableContainer = styled.div`
-  width: 100%;
-  overflow-x: auto; /* Adiciona barra de rolagem horizontal para tabelas largas */
-  margin-top: 20px;
-`;
-
 export const Table = styled.table`
   width: 100%;
   border-collapse: collapse;
-  min-width: 800px;
+  min-width: 800px; /* Tamanho mínimo padrão para desktops */
 
   th,
   td {
     padding: 15px;
     text-align: center;
     border: 1px solid ${({ theme }) => theme.text};
-    min-width: 200px;
+    min-width: 150px; /* Largura mínima padrão */
+    font-size: 14px;
   }
 
   th {
     background-color: #222;
     color: #ffcc00;
+    font-size: 16px;
   }
 
   tr:nth-child(odd) {
@@ -70,36 +66,52 @@ export const Table = styled.table`
   .button-container {
     display: flex;
     justify-content: center;
-    gap: 16px; /* Espaçamento horizontal entre os botões */
+    gap: 16px;
 
-    /* Garantindo que os botões se ajustem no mobile */
     @media (max-width: 768px) {
-      flex-direction: column; /* Empilha os botões no mobile */
-      gap: 10px; /* Espaçamento vertical entre os botões no mobile */
+      flex-direction: column;
+      gap: 10px;
     }
   }
 
   button {
-    padding: 12px 20px;
+    padding: 10px 15px;
     background-color: #ffcc00;
     border: none;
     border-radius: 4px;
     cursor: pointer;
-    margin-top: 10px;
+    font-size: 14px;
 
     &:hover {
       background-color: #e6b800;
     }
 
-    /* Margens adicionais para espaçamento garantido */
-    & + button {
-      margin-left: px; /* Espaçamento extra entre botões */
-    }
-
     @media (max-width: 768px) {
-      width: 100%; /* Botões ocupam toda a largura no mobile */
-      margin-left: 0; /* Removendo margem lateral no mobile */
+      width: 100%;
     }
+  }
+
+  /* Responsividade para dispositivos móveis */
+  @media (max-width: 768px) {
+    min-width: unset; /* Remove largura mínima */
+    th,
+    td {
+      padding: 8px; /* Reduz o espaçamento interno */
+      font-size: 12px; /* Reduz o tamanho da fonte */
+      min-width: 100px; /* Reduz o comprimento mínimo horizontal */
+    }
+  }
+`;
+
+
+export const TableContainer = styled.div`
+  width: 100%;
+  overflow-x: auto; /* Adiciona barra de rolagem horizontal */
+  margin-top: 20px;
+
+  /* Ajuste no mobile */
+  @media (max-width: 768px) {
+    margin-top: 15px;
   }
 `;
 
