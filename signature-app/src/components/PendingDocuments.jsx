@@ -287,7 +287,7 @@ const PendingDocuments = () => {
             placeholder="Digite o motivo da reprovação..."
           />
           <div className="button-container">
-            <button onClick={handleSaveDescription}>Salvar Descrição</button>
+            <button onClick={handleSaveDescription}>Alterar descrição</button>
             <button onClick={handleSendRejection}>Enviar</button>
             <button onClick={() => setShowPopup(false)}>Cancelar</button>
           </div>
